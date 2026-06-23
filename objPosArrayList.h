@@ -27,7 +27,7 @@ class objPosArrayList
         objPos getTailElement() const; 
         objPos getElement(int index) const; 
 
-        // Methods 
+        // Mutators 
         void insertHead(objPos thisPos); 
         void insertTail(objPos thisPos);  
         void removeHead(); 

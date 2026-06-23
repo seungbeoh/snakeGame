@@ -9,17 +9,16 @@
 #include "GameMechs.h"
 #include "Food.h"
 #include "Player.h"
+#define DELAY_CONST 100000
 
 using namespace std;
 
-#define DELAY_CONST 100000
-
-// Global variables
+// Global Variables
 GameMechs* gamePtr;
 Food* foodPtr;
 Player* playerPtr;
 
-// Function declaration
+// Function Declaration
 void Initialize(void);
 void GetInput(void);
 void RunLogic(void);
@@ -27,7 +26,9 @@ void DrawScreen(void);
 void LoopDelay(void);
 void CleanUp(void);
 
-// Function definitions
+// Function Definitions
+
+// Main Program
 int main(void)
 {
     Initialize();
@@ -44,7 +45,7 @@ int main(void)
     CleanUp();
 }
 
-
+// Initialization Routine
 void Initialize(void)
 {
     MacUILib_init();
@@ -52,7 +53,7 @@ void Initialize(void)
 
     srand(time(NULL));
 
-    // Allocating heap memory for pointers and lists
+    // Allocating heap memory for pointers and lists (DMA)
     gamePtr = new GameMechs();
     foodPtr = new Food(gamePtr);
     playerPtr = new Player(gamePtr, foodPtr);
@@ -60,6 +61,7 @@ void Initialize(void)
     foodPtr->generateFood(playerPtr->getPlayerPos());
 }
 
+// Input Collection Routine
 void GetInput(void)
 {
     // Asynchronous player input 
@@ -69,12 +71,14 @@ void GetInput(void)
     }
 }
 
+// Main Logic Routine
 void RunLogic(void)
 {
     playerPtr->updatePlayerDir();
     playerPtr->movePlayer();
 }
 
+// Draw Routine
 void DrawScreen(void)
 {
     MacUILib_clearScreen();
@@ -98,7 +102,7 @@ void DrawScreen(void)
                 MacUILib_printf("#");
             }
 
-            // Drawing space in between border
+            // Drawing space in between borders
             else
             {
                 objPos currPos(col, row, ' ');
@@ -117,7 +121,7 @@ void DrawScreen(void)
                     }
                 }
 
-                // Draw food
+                // Drawing food
                 if (!drawn)
                 {
                     bool foodDrawn = false;
@@ -137,20 +141,24 @@ void DrawScreen(void)
                 }
             }
         }
+
         MacUILib_printf("\n");
     }
 
+    // In-game messages
     MacUILib_printf("Score: %d", gamePtr->getScore());
     MacUILib_printf("\n\nUse WASD to move!");
     MacUILib_printf("\nPress ESC to quit");
     MacUILib_printf("\n\n+ = Normal food (+1 score)\n$ = Special food (+2 score, no growth)");
 }
 
+// Delay Routine
 void LoopDelay(void)
 {
     MacUILib_Delay(DELAY_CONST);
 }
 
+// Tear-Down Routine
 void CleanUp(void)
 {
     MacUILib_clearScreen();
@@ -170,3 +178,4 @@ void CleanUp(void)
 
     MacUILib_uninit();
 }
+

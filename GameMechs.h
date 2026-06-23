@@ -1,14 +1,15 @@
 // Declaration of GameMechs class
 
+// Preprocessors
 #ifndef GAMEMECHS_H
 #define GAMEMECHS_H
-
 #include <cstdlib>
 #include <time.h>
 #include "objPos.h"
 
 using namespace std;
 
+// Declare "GameMechs" class
 class GameMechs
 {
     private:
@@ -41,7 +42,7 @@ class GameMechs
         int getBoardSizeY() const;
         int getScore() const;
 
-        // Method
+        // Mutator
         void incrementScore();
 };
 

@@ -6,26 +6,32 @@
 #include "GameMechs.h"
 #include <cstdlib>
 
-// Constructor
+// Overloaded Constructor to construct food object
+// GameMechs* - Pointer to GameMechs object (GameMechs.cpp and GameMechs.h)
+// thisGMRef - Local parameter name to hold the pointer GameMechs*
 Food::Food(GameMechs* thisGMRef) 
 {
     mainGameMechsRef = thisGMRef;
-    foodBucket = new objPosArrayList(); // Allocate heap memory for food bucket, pointer generated during runtime 
+    foodBucket = new objPosArrayList(); // Instantiate objPosArrayList object, to be pointed by the pointer "foodBucket"
 
+    // Run a for-loop to generate 5 random food items 
     for (int i = 0; i < 5; i++)
     {
         int x, y;
         bool isValid;
         char sym;
 
+        // While the coordinates are not valid, keep generating new random coordinates for the food items to spawn at
         do
         {
             isValid = true;
             
-            // Generate a random x & y coordinate for food to spawn 
+            // Generate new coordinates
             x = rand() % (mainGameMechsRef->getBoardSizeX() - 2) + 1;
             y = rand() % (mainGameMechsRef->getBoardSizeY() - 2) + 1;
 
+            // For all items stored with the "foodBucket" pointer, verify if the coordinates overlap with previous food items on the gameboard
+            // If overlap occurs, set "isValid" boolean value to false for the do-while loop to recur 
             for (int k = 0; k < foodBucket->getSize(); k++)
             {
                 objPos placed = foodBucket->getElement(k);
@@ -36,18 +42,23 @@ Food::Food(GameMechs* thisGMRef)
                 }
             }
         }while (!isValid);
-
-        if (i < 2) // 2/5 items in foodBucket are special food 
+        
+        // Set 2/5 items in foodBucket as special food, symbol = $
+        if (i < 2) 
         {
             sym = '$';  
         }
-        else // 3/5 items in foodBucket are normal food 
+
+        // Set 3/5 items in foodBucket as normal food, symbol = +
+        else 
         {
             sym = '+';  
         }
 
-        objPos food(x, y, sym); // Instantiate object 
+        // Instantiate food object with random coordinates and chosen symbol
+        objPos food(x, y, sym);  
 
+        // With the pointer "foodBucket", access "insertTail" function and append "food" to the end of the list
         foodBucket->insertTail(food);
     }
 }
@@ -59,22 +70,27 @@ Food::~Food()
 }
 
 // Getter
+// objPosArrayList* - Return type, the function returns a pointer to an objPosArrayList object
 objPosArrayList* Food::getFoodBucket() const 
 {
     return foodBucket;
 }
 
-// Methods
+// Method to place all food items from "foodBucket" pointer onto the gameboard
+// objPosArrayList* - Pointer to objPosArrayList object (objPosArrayList.cpp and objPosArrayList.h)
+// blockOffList - Local parameter name to hold the pointer objPosArrayList*
 void Food::generateFood(objPosArrayList* blockOffList)
 {
     int boardX = mainGameMechsRef->getBoardSizeX(); 
     int boardY = mainGameMechsRef->getBoardSizeY();
 
-    delete foodBucket;  // Delete the contents in the previous run's bucket 
+    // Delete the contents in the previous run's bucket 
+    delete foodBucket;  
 
-    foodBucket = new objPosArrayList();  // Allocate heap memory for generating new members 
+    // Allocate new heap memory to the "objPosArrayList" object to store under the "foodBucket" pointer 
+    foodBucket = new objPosArrayList();  
 
-    // Iterating through the 5 items in foodBucket 
+    // Run a for-loop to generate 5 new food items, checking overlap with snake's body and other food
     for (int i = 0; i < 5; i++) 
     {
         int x, y;
@@ -85,16 +101,16 @@ void Food::generateFood(objPosArrayList* blockOffList)
         {
             isValid = true;
 
-            // Generating random x & y coordinate for the new food item 
+            // Generate random x & y coordinate for the new food item 
             x = rand() % (boardX - 2) + 1;
             y = rand() % (boardY - 2) + 1;
 
-            // Iterate through snake's body members
             for (int j = 0; j < blockOffList->getSize(); j++)
             {
-                objPos segment = blockOffList->getElement(j); // Store returned object from getter method into a local variable
+                objPos segment = blockOffList->getElement(j); 
 
-                // if x & y coordinates of food item overlap with snake's objPos coordinate, discard item
+                // Check for if x & y coordinates of food item overlap with the snake's body
+                // If overlap occurs, discard item
                 if (x == segment.getX() && y == segment.getY())
                 {
                     isValid = false;
@@ -102,11 +118,13 @@ void Food::generateFood(objPosArrayList* blockOffList)
                 }
             }
 
+            // If the newly generated coordinates don't overlap with the snake's body, check for overlap with existing food items in "foodBucket"
             if (isValid)
             {
                 for (int k = 0; k < foodBucket->getSize(); k++)
                 {
                     objPos placed = foodBucket->getElement(k);
+
                     if (x == placed.getX() && y == placed.getY())
                     {
                         isValid = false;
@@ -122,63 +140,10 @@ void Food::generateFood(objPosArrayList* blockOffList)
         else
             sym = '+';
 
-        objPos food(x, y, sym); // Instantiate new food item
+        // Instantiate food object with random coordinates and chosen symbol
+        objPos food(x, y, sym); 
 
-        foodBucket->insertTail(food); // Append new food item to the end of foodBucket
+        // With the pointer "foodBucket", access "insertTail" function and append "food" to the end of the list
+        foodBucket->insertTail(food); 
     }
 }
-
-void Food::replaceFoodItem(int index, objPosArrayList* blockOffList)
-{
-    int boardX = mainGameMechsRef->getBoardSizeX();
-    int boardY = mainGameMechsRef->getBoardSizeY();
-    int x, y;
-    bool isValid;
-
-    objPos oldFood = foodBucket->getElement(index);
-    char sym = oldFood.getSymbol();
-
-    objPosArrayList* newBucket = new objPosArrayList();
-    for (int i = 0; i < foodBucket->getSize(); i++)
-    {
-        if (i != index)
-            newBucket->insertTail(foodBucket->getElement(i));
-    }
-
-    do
-    {
-        isValid = true;
-        x = rand() % (boardX - 2) + 1;
-        y = rand() % (boardY - 2) + 1;
-
-        for (int j = 0; j < blockOffList->getSize(); j++)
-        {
-            objPos segment = blockOffList->getElement(j);
-            if (x == segment.getX() && y == segment.getY())
-            {
-                isValid = false;
-                break;
-            }
-        }
-
-        if (isValid)
-        {
-            for (int k = 0; k < newBucket->getSize(); k++)
-            {
-                objPos placed = newBucket->getElement(k);
-                if (x == placed.getX() && y == placed.getY())
-                {
-                    isValid = false;
-                    break;
-                }
-            }
-        }
-    } while (!isValid);
-
-    objPos newFood(x, y, sym);
-    newBucket->insertTail(newFood);
-
-    delete foodBucket;
-    foodBucket = newBucket;
-}
-

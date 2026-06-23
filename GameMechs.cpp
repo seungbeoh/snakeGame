@@ -4,7 +4,8 @@
 // Preprocessors
 #include "GameMechs.h"
 
-GameMechs::GameMechs() // Default constructor
+// Default Constructor
+GameMechs::GameMechs() 
 {
     input = '\0';
     exitFlag = false;
@@ -14,7 +15,8 @@ GameMechs::GameMechs() // Default constructor
     boardSizeY = 15;
 }
 
-GameMechs::GameMechs(int boardX, int boardY) // Parametrized constructor
+// Overloaded Constructor to construct "GameMechs" object
+GameMechs::GameMechs(int boardX, int boardY) 
 {
     input = '\0';
     exitFlag = false;
@@ -24,7 +26,8 @@ GameMechs::GameMechs(int boardX, int boardY) // Parametrized constructor
     boardSizeY = boardY;
 }
 
-GameMechs::~GameMechs() // Destructor
+// Destructor
+GameMechs::~GameMechs() 
 {
 }
 

@@ -4,7 +4,7 @@
 // Preprocessors
 #include "objPos.h"
 
-// Constructors
+// Default Constructor
 objPos::objPos() 
 {
     x = 0;
@@ -12,6 +12,7 @@ objPos::objPos()
     symbol = 0;
 }
 
+// Overloaded Constructor to construct "objPos" object
 objPos::objPos(int xPos, int yPos, char sym)  
 {
     x = xPos;
@@ -19,6 +20,7 @@ objPos::objPos(int xPos, int yPos, char sym)
     symbol = sym;
 }
 
+// Copy Constructor
 objPos::objPos(const objPos& o) 
 {
     x = o.x;

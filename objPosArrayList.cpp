@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-// Constructors
+// Default Constructor
 objPosArrayList::objPosArrayList() 
 {
     listSize = 0;
@@ -15,7 +15,7 @@ objPosArrayList::objPosArrayList()
     aList = new objPos[ARRAY_MAX_CAP]; 
 }
 
-// Destructors
+// Destructor
 objPosArrayList::~objPosArrayList() 
 {
     delete[] aList;
@@ -27,7 +27,6 @@ int objPosArrayList::getSize() const
     return listSize; 
 }
 
-
 objPos objPosArrayList::getHeadElement() const 
 {
     return aList[0]; 
@@ -35,7 +34,7 @@ objPos objPosArrayList::getHeadElement() const
 
 objPos objPosArrayList::getTailElement() const 
 {
-    return aList[listSize-1]; // Actual size is index - 1
+    return aList[listSize-1]; 
 }
 
 objPos objPosArrayList::getElement(int index) const 
@@ -48,7 +47,7 @@ objPos objPosArrayList::getElement(int index) const
     return aList[index];
 }
 
-// Methods 
+// Mutators 
 void objPosArrayList::insertHead(objPos thisPos) 
 {
     if(listSize == arrayCapacity)
@@ -58,10 +57,10 @@ void objPosArrayList::insertHead(objPos thisPos)
 
     for(int i=listSize; i>0; i--)
     {
-        aList[i] = aList[i-1]; // Shift list contents forward by 1 index
+        aList[i] = aList[i-1]; 
     }
 
-    aList[0] = thisPos; // Pass the input parameter (thisPos, data type of objPos) into the 0th index of aList
+    aList[0] = thisPos; 
     listSize++;
 }
 
@@ -72,10 +71,9 @@ void objPosArrayList::insertTail(objPos thisPos)
         return;
     }
     
-    aList[listSize] = thisPos; // Pass the input parameter (thisPos, data type of objPos) into listSize's index 
+    aList[listSize] = thisPos;  
     listSize++;
 }
-
 
 void objPosArrayList::removeTail() 
 {

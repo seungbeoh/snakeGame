@@ -4,22 +4,27 @@
 #include "Player.h"
 #include <cstdlib>
 
-// Constructor
+// Overloaded Constructor to construct Player object
+// GameMechs* - Pointer to GameMechs object (GameMechs.cpp and GameMechs.h)
+// Food* - Pointer to Food object (Food.cpp and Food.h)
 Player::Player(GameMechs* thisGMRef, Food* thisFoodRef) 
 {
-    // Default state of player object, prior to starting the game
     mainGameMechsRef = thisGMRef;
     mainFoodRef = thisFoodRef;
+
+    // Initialize direction to stopped state
     myDir = STOP; 
 
-    // Allocate heap memory 
-    playerPosList = new objPosArrayList();
+    playerPosList = new objPosArrayList(); // Instantiate objPosArrayList object, to be pointed by the pointer "playerPosList"
 
     // Randomized starting position 
     int startX = rand() % (mainGameMechsRef->getBoardSizeX() - 2) + 1;
     int startY = rand() % (mainGameMechsRef->getBoardSizeY() - 2) + 1;
+            
+    // Instantiate "startPos" object with random coordinates and chosen symbol
+    objPos startPos(startX, startY, '*');  
 
-    objPos startPos(startX, startY, '*'); // Declare player object with data type of objPos 
+    // With the pointer "playerPosList", access "insertHead" function and append "startPos" to the front of the list
     playerPosList->insertHead(startPos);
 }
 
@@ -38,8 +43,10 @@ objPosArrayList* Player::getPlayerPos() const
 // Methods
 void Player::updatePlayerDir()  
 {
+    // Access getInput() function with the pointer "mainGameMechsRef" (from GameMechs.cpp and GameMechs.h) and store it into input variable 
     char input = mainGameMechsRef->getInput();
 
+    // Set switch cases for WASD player movement control
     switch(input)
     {
         case 'w':
@@ -70,18 +77,12 @@ void Player::updatePlayerDir()
                 myDir = RIGHT;
             }
             break;
+
+        // Switch cases to handle game exit  
         case 27:
             mainGameMechsRef->setExitTrue();
             break;
-        case 'p': 
-        case 'P':
-            mainGameMechsRef->incrementScore();
-            break;
-        case 'l': 
-        case 'L':
-            mainGameMechsRef->setLoseFlag();
-            mainGameMechsRef->setExitTrue();
-            break;
+        
         default:
             break;
     }
@@ -89,15 +90,12 @@ void Player::updatePlayerDir()
     mainGameMechsRef->clearInput();
 }
 
-void Player::movePlayer()  
+// Method for wrap-around logic of snake 
+// objPos& - Pass "newHead" object by reference (modifiable)
+void Player::calcNewHead(objPos& newHead)
 {
-    // New head position
-    objPos currentHead = playerPosList->getHeadElement();
-
-    // Access x and y coordinates from currentHead (objPos object)
-    int x = currentHead.getX(); 
-    int y = currentHead.getY();
-
+    int x = newHead.getX();
+    int y = newHead.getY();
     int boardX = mainGameMechsRef->getBoardSizeX();
     int boardY = mainGameMechsRef->getBoardSizeY();
 
@@ -107,80 +105,98 @@ void Player::movePlayer()
             y--;
             if (y <= 0)
             {
-                y = boardY - 2;
+                y = boardY - 2; // Wrap to bottom edge
             }
             break;
+
         case DOWN:
             y++;
             if (y >= boardY - 1)
             {
-                y = 1;
+                y = 1; // Wrap to top edge
             }
             break;
+
         case LEFT:
             x--;
             if (x <= 0)
             {
-                x = boardX - 2;
+                x = boardX - 2; // Wrap to right edge
             }
             break;
+
         case RIGHT:
             x++;
-            if (x >= boardX - 1)
+            if (x >= boardX - 1) 
             {
-                x = 1;
+                x = 1; // Wrap to left edge
             }
             break;
+
         case STOP:
         default:
             break;
     }
 
-    objPos newHead(x, y, '*'); // Instantiate new object member 
+    newHead = objPos(x, y, '*');
+}
 
-    // Feature 1 - Iteration 3, snake body implementation 
+// Method to move the snake
+void Player::movePlayer()  
+{
+    objPos newHead = playerPosList->getHeadElement();
+    calcNewHead(newHead);
     playerPosList->insertHead(newHead);
 
-    // Feature 2 - Iteration 3, food consumption
-    bool foodEaten = false;
-    char eatenSym = ' ';
+    bool grew = checkFoodCollision(newHead);
+    if (!grew) playerPosList->removeTail();
 
+    checkSelfCollision(newHead);
+}
+
+// Method to check for the snake's collision with generated food items 
+// const objPos& - Pass "newHead" object by reference (read only)
+bool Player::checkFoodCollision(const objPos& newHead)
+{
     objPosArrayList* foodBucket = mainFoodRef->getFoodBucket();
+
+    // Run a for-loop to store the location of the food items and verify the snake head's collision with the food item
+    // If collision occurs, call incrementScore() function (from GameMechs.cpp and GameMechs.h) 
     for (int i = 0; i < foodBucket->getSize(); i++)
     {
         objPos foodItem = foodBucket->getElement(i);
 
         if (newHead.isPosEqual(&foodItem))
         {
-            foodEaten = true;
-            eatenSym = foodItem.getSymbol();
-            mainFoodRef->replaceFoodItem(i, playerPosList); // swap out only the eaten item
-            break;
+            char sym = foodItem.getSymbol();
+
+            // If food item is eaten, generate a new "bucket" of food items
+            mainFoodRef->generateFood(playerPosList); 
+
+            // Check for the food type that the snake consumed
+            if (sym == '$') // Special food type
+            {
+                mainGameMechsRef->incrementScore(); 
+                mainGameMechsRef->incrementScore(); 
+                return false; // No snake growth 
+            }
+
+            else // Normal food type 
+            {
+                mainGameMechsRef->incrementScore(); 
+                return true; // Growth
+            }
         }
     }
 
-    if (foodEaten)
-    {
-        if (eatenSym == '$')  // Special food
-        {
-            mainGameMechsRef->incrementScore(); 
-            mainGameMechsRef->incrementScore(); // 2 points
+    return false; // If no food is eaten
+}
 
-            playerPosList->removeTail(); // No growth
-        }
-        else  // Normal food
-        {
-            mainGameMechsRef->incrementScore(); // 1 point
-            // No removeTail allows snake to grow 
-        }
-    }
-
-    else
-    {
-        playerPosList->removeTail();
-    }
-
-    // Feature 3 - Iteration 3, if snake runs into itself
+// Method for checking if the snake collides with itself
+// const objPos& - Pass "newHead" object by reference (read-only)
+void Player::checkSelfCollision(const objPos& newHead)
+{
+    // If the head of the snake shares the same coordinates with any of its other body segments, set setLoseFlag() and setExitTrue() flag to true
     for (int i = 1; i < playerPosList->getSize(); i++)
     {
         objPos segment = playerPosList->getElement(i);

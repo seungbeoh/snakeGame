@@ -4,6 +4,8 @@
 #ifndef OBJPOS_H
 #define OBJPOS_H
 
+
+// Declare "objPos" class
 class objPos
 {
     private:
@@ -32,8 +34,6 @@ class objPos
         char getSymbol() const;
         int getX() const;
         int getY() const;
-
-        // Methods
         bool isPosEqual(const objPos* refPos) const;
         char getSymbolIfPosEqual(const objPos* refPos) const;
 };

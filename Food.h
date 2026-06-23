@@ -1,16 +1,19 @@
-// Declaration of food class
+// Declaration of "Food" class
 
+// Preprocessors
 #ifndef FOOD_H
 #define FOOD_H
-
 #include "objPos.h"
 #include "objPosArrayList.h"
 
+// Include "GameMechs" class
 class GameMechs;
 
+// Declare "Food" class
 class Food
 {
     private:
+        // Pointers
         objPosArrayList* foodBucket; 
         GameMechs* mainGameMechsRef;
 
@@ -24,9 +27,8 @@ class Food
         // Getter
         objPosArrayList* getFoodBucket() const;  
 
-        // Methods
+        // Method
         void generateFood(objPosArrayList* blockOffList);                       
-        void replaceFoodItem(int index, objPosArrayList* blockOffList);          
 };
 
 #endif
